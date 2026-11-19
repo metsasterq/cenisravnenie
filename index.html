@@ -1,0 +1,2199 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ТОП-3 самых дешёвых квартир — Аналитика по проектам</title>
+    <style>
+        /* Базовые переменные и сброс стилей — приглушённая красно-бело-графитовая палитра */
+        :root {
+            --bg-page: #f3f3f4;
+            --bg-card: #fcfcfd;
+            --bg-subtle: #ebeced;
+            --border-color: #e0e0e3;
+            --border-strong: #c8c8cd;
+            --text-main: #2c2c30;
+            --text-secondary: #56565c;
+            --text-muted: #76767d;
+            --primary-dark: #2c2c30;
+            --accent-red: #b93838;
+            --accent-red-dark: #9e2d2d;
+            --accent-red-bg: #f9efef;
+            --accent-red-border: #e5c3c3;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 1px 3px rgba(38, 38, 40, 0.05), 0 1px 2px rgba(38, 38, 40, 0.03);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            line-height: 1.45;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 20px 16px 48px;
+        }
+
+        /* Панель фильтров */
+        .filters-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .filter-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .reset-link {
+            background: none;
+            border: none;
+            color: var(--accent-red);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .reset-link:hover {
+            color: var(--accent-red-dark);
+            text-decoration: underline;
+        }
+
+        .chips-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 13px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-subtle);
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+
+        .chip:hover {
+            background: #e1e1e4;
+        }
+
+        .chip.active-dark {
+            background: var(--primary-dark);
+            border-color: var(--primary-dark);
+            color: #f4f4f5;
+            box-shadow: 0 2px 5px rgba(38, 38, 40, 0.14);
+        }
+
+        .chip.active-red,
+        .chip.active-green {
+            background: var(--accent-red);
+            border-color: var(--accent-red);
+            color: #fcfcfd;
+            box-shadow: 0 2px 5px rgba(185, 56, 56, 0.16);
+        }
+
+        .chip-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 1px 7px;
+            border-radius: 999px;
+            background: #fcfcfd;
+            color: var(--text-secondary);
+        }
+
+        .chip.active-dark .chip-badge,
+        .chip.active-red .chip-badge,
+        .chip.active-green .chip-badge {
+            background: rgba(255, 255, 255, 0.16);
+            color: #f4f4f5;
+        }
+
+        /* Нижняя сетка фильтров: Комнатность + Площадь + Управление аккордеонами */
+        .filters-bottom {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--bg-subtle);
+        }
+
+        .filters-bottom-left {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 24px;
+            flex: 1;
+        }
+
+        /* Поля ввода диапазона площадей */
+        .area-range-inputs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .area-input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .area-input {
+            width: 112px;
+            padding: 7px 28px 7px 11px;
+            border-radius: 10px;
+            border: 1px solid var(--border-strong);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            background: #fcfcfd;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .area-input:focus {
+            border-color: var(--accent-red);
+            box-shadow: 0 0 0 3px rgba(185, 56, 56, 0.12);
+        }
+
+        .area-input::placeholder {
+            color: #96969d;
+            font-weight: 400;
+        }
+
+        .area-unit {
+            position: absolute;
+            right: 9px;
+            font-size: 11px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .area-dash {
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        /* Кнопки управления аккордеонами */
+        .accordion-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-secondary {
+            padding: 7px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            background: var(--bg-subtle);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .btn-secondary:hover {
+            background: #e1e1e4;
+            color: var(--text-main);
+        }
+
+        /* Состояния загрузки и ошибок */
+        .state-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 48px 24px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .spinner {
+            width: 38px;
+            height: 38px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--accent-red);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 14px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .state-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .state-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            max-width: 480px;
+            margin: 0 auto 16px;
+        }
+
+        .btn-primary {
+            padding: 9px 18px;
+            border-radius: 10px;
+            border: none;
+            background: var(--primary-dark);
+            color: #f4f4f5;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background: #3a3a3f;
+        }
+
+        /* Карточка проекта (ЖК) */
+        .project-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .project-header {
+            background: linear-gradient(135deg, #252528 0%, #323236 100%);
+            color: #f4f4f5;
+            padding: 16px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .project-title {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .project-pill {
+            padding: 5px 12px;
+            border-radius: 999px;
+            background: rgba(185, 56, 56, 0.22);
+            border: 1px solid rgba(229, 195, 195, 0.28);
+            color: #f2c2c2;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Секция комнатности внутри проекта */
+        .room-section {
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            background: #f7f7f8;
+        }
+
+        .room-section:first-of-type {
+            border-top: none;
+        }
+
+        .room-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .room-badge {
+            background: #36363a;
+            color: #f4f4f5;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 8px;
+        }
+
+        /* Блок диапазона 3 м² */
+        .range-card {
+            background: #fcfcfd;
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius-md);
+            margin-bottom: 14px;
+            overflow: hidden;
+        }
+
+        .range-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .range-header {
+            background: #2c2c30;
+            color: #f3f3f4;
+            border-left: 4px solid var(--accent-red);
+            padding: 11px 16px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.15s;
+        }
+
+        .range-header:hover {
+            background: #35353a;
+        }
+
+        .range-header-left {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chevron-box {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #e4e4e7;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .range-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 8px;
+            background: #3d2426;
+            border: 1px solid #6e3438;
+            color: #f2b8b8;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .range-count-tag {
+            font-size: 12px;
+            font-weight: 600;
+            color: #d4d4d8;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 3px 10px;
+            border-radius: 6px;
+        }
+
+        /* Таблица ТОП-3 */
+        .table-wrap {
+            overflow-x: auto;
+            border-top: 1px solid var(--border-color);
+        }
+
+        table.top-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1140px;
+            text-align: left;
+        }
+
+        table.top-table th {
+            background: #f4f4f5;
+            padding: 9px 12px;
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+            line-height: 1.3;
+        }
+
+        table.top-table td {
+            padding: 12px 12px;
+            border-bottom: 1px solid var(--bg-subtle);
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        table.top-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        table.top-table tr:hover td {
+            background: #f7f7f8;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px 9px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .rank-1 {
+            background: var(--accent-red);
+            color: #fcfcfd;
+        }
+
+        .rank-2 {
+            background: var(--accent-red-bg);
+            color: var(--accent-red-dark);
+            border: 1px solid var(--accent-red-border);
+        }
+
+        .rank-3 {
+            background: var(--bg-subtle);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .apt-num {
+            font-weight: 700;
+            color: var(--text-main);
+            font-size: 14px;
+        }
+
+        .apt-building {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 1px;
+        }
+
+        .price-bold {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text-main);
+            white-space: nowrap;
+        }
+
+        .sqm-text {
+            font-weight: 600;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .comp-main {
+            font-weight: 700;
+            color: var(--text-main);
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .comp-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+            white-space: nowrap;
+        }
+
+        .comp-cell-trigger {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-end;
+            cursor: help;
+            padding: 3px 6px;
+            margin: -3px -6px;
+            border-radius: 8px;
+            transition: background 0.15s;
+        }
+
+        .comp-cell-trigger:hover {
+            background: #ebeced;
+        }
+
+        .comp-main-dotted {
+            border-bottom: 1px dashed var(--border-strong);
+        }
+
+        .comp-diff-badge {
+            display: inline-block;
+            margin-top: 4px;
+            padding: 2px 7px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .diff-pill {
+            display: inline-block;
+            padding: 3px 9px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .diff-good {
+            background: #edf6f0;
+            color: #1f6b3b;
+            border: 1px solid #c6e2cf;
+        }
+
+        .diff-bad {
+            background: #f9efef;
+            color: #9e2d2d;
+            border: 1px solid #e6c5c5;
+        }
+
+        .diff-neutral {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+        }
+
+        .text-muted-italic { color: #94a3b8; font-style: italic; font-size: 12px; }
+        .text-dash { color: #94a3b8; font-weight: 600; font-size: 14px; }
+
+        /* Всплывающая подсказка по проектам конкурентов */
+        .comp-tooltip {
+            position: fixed;
+            z-index: 9999;
+            min-width: 270px;
+            max-width: 390px;
+            background: #232327;
+            color: #f4f4f5;
+            border: 1px solid #3e3e45;
+            border-radius: 12px;
+            padding: 12px 14px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+            pointer-events: none;
+            font-size: 12px;
+            line-height: 1.4;
+            transition: opacity 0.12s ease;
+        }
+
+        .comp-tooltip.hidden {
+            display: none !important;
+        }
+
+        .tooltip-header {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #f2b8b8;
+            padding-bottom: 7px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .tooltip-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 4px 0;
+        }
+
+        .tooltip-row + .tooltip-row {
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .tooltip-proj-name {
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .tooltip-proj-meta {
+            font-size: 11px;
+            color: #a1a1aa;
+        }
+
+        .tooltip-proj-price {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .tooltip-proj-price strong {
+            display: block;
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .tooltip-proj-price span {
+            font-size: 11px;
+            color: #a1a1aa;
+        }
+
+        .tooltip-footer {
+            margin-top: 8px;
+            padding-top: 7px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            color: #e4e4e7;
+            font-size: 11.5px;
+        }
+
+        .others-toggle-btn {
+            width: 100%;
+            padding: 8px 16px;
+            background: none;
+            border: none;
+            color: var(--accent-red-dark);
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .others-toggle-btn:hover {
+            background: #ebeced;
+        }
+
+        table.others-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 640px;
+            border-top: 1px solid var(--border-color);
+            background: #fafafa;
+        }
+
+        table.others-table th {
+            padding: 6px 14px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            background: #ebeced;
+        }
+
+        table.others-table td {
+            padding: 7px 14px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            border-top: 1px solid #ebeced;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 640px) {
+            .filters-panel { padding: 14px; }
+            .room-section { padding: 14px; }
+            .area-input { width: 96px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Компактная панель фильтров: Проект, Дом, Комнатность, Диапазон площадей -->
+    <section class="filters-panel" id="filtersPanel">
+        <!-- 1. Проект (ЖК) -->
+        <div class="filter-group">
+            <div class="filter-header">
+                <span class="filter-label">Проект (ЖК)</span>
+            </div>
+            <div class="chips-row" id="projectChips">
+                <span class="chip">Загрузка проектов...</span>
+            </div>
+        </div>
+
+        <!-- 2. Дом -->
+        <div class="filter-group" id="buildingFilterGroup">
+            <div class="filter-header">
+                <span class="filter-label">Дом</span>
+                <button type="button" id="resetBuildingBtn" class="reset-link hidden" onclick="resetBuildingFilter()">Сбросить дом</button>
+            </div>
+            <div class="chips-row" id="buildingChips">
+                <span class="chip">Все дома</span>
+            </div>
+        </div>
+
+        <!-- 3. Комнатность + 4. Диапазон площадей + Управление аккордеонами -->
+        <div class="filters-bottom">
+            <div class="filters-bottom-left">
+                <!-- Комнатность (мультивыбор) -->
+                <div class="filter-group">
+                    <div class="filter-header">
+                        <span class="filter-label">Комнатность (мультивыбор)</span>
+                        <button type="button" id="resetRoomsBtn" class="reset-link hidden" onclick="clearRoomSelection()">Сбросить</button>
+                    </div>
+                    <div class="chips-row" id="roomChips">
+                        <span class="chip active-red">Все</span>
+                    </div>
+                </div>
+
+                <!-- Диапазон площадей (от — до) -->
+                <div class="filter-group">
+                    <div class="filter-header">
+                        <span class="filter-label">Диапазон площадей</span>
+                        <button type="button" id="resetAreaBtn" class="reset-link hidden" onclick="clearAreaRange()">Сбросить</button>
+                    </div>
+                    <div class="area-range-inputs">
+                        <div class="area-input-wrap">
+                            <input type="number" step="0.1" min="0" id="areaMinInput" class="area-input" placeholder="От" oninput="handleAreaInput()">
+                            <span class="area-unit">м²</span>
+                        </div>
+                        <span class="area-dash">—</span>
+                        <div class="area-input-wrap">
+                            <input type="number" step="0.1" min="0" id="areaMaxInput" class="area-input" placeholder="До" oninput="handleAreaInput()">
+                            <span class="area-unit">м²</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Кнопки разворачивания/сворачивания диапазонов -->
+            <div class="accordion-actions">
+                <button type="button" class="btn-secondary" onclick="toggleAllAccordions(true)">Развернуть все</button>
+                <button type="button" class="btn-secondary" onclick="toggleAllAccordions(false)">Свернуть все</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Область вывода результатов -->
+    <main id="resultsContainer">
+        <div class="state-box">
+            <div class="spinner"></div>
+            <div class="state-title">Загрузка квартир из таблицы...</div>
+            <div class="state-desc" id="loadingStatusText">Подключаемся к Google Таблице...</div>
+        </div>
+    </main>
+</div>
+
+<!-- Всплывающее окно с детализацией проектов конкурентов -->
+<div id="compTooltip" class="comp-tooltip hidden"></div>
+
+<script>
+    // =========================================================================
+    // КОНФИГУРАЦИЯ ТАБЛИЦЫ И ГЛОБАЛЬНОЕ СОСТОЯНИЕ
+    // =========================================================================
+    const SPREADSHEET_ID = '1wvMGRGX_ihKVN3dotEr4IPi1lULnS6wt3LGzBpnhcBw';
+    const SHEET_NAME = 'Общая';
+    const GID = '0';
+
+    const COMPETITORS_SHEET_NAME = 'Конкуренты';
+    const COMPETITORS_GID = '893420568';
+
+    const EXCLUDED_STATUS_KEYWORDS = ['субаренд', 'закрыто от продаж', 'продано'];
+    const NON_APARTMENT_KEYWORDS = ['машиномест', 'паркинг', 'кладов', 'коммерч', 'нежил', 'офис', 'гараж', 'мотомест'];
+
+    const state = {
+        allValidApartments: [],
+        competitorStatsMap: new Map(),
+        selectedProject: 'ALL',
+        selectedBuilding: 'ALL',
+        selectedRooms: new Set(),
+        areaMin: null,
+        areaMax: null,
+        collapsedRanges: new Set(),
+        expandedOtherLots: new Set(),
+        isLoading: true,
+        loadError: null
+    };
+
+    // =========================================================================
+    // ИНИЦИАЛИЗАЦИЯ И ПОСЛЕДОВАТЕЛЬНАЯ ЗАГРУЗКА
+    // =========================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        loadSheetData();
+    });
+
+    function setLoadingStatus(msg) {
+        const el = document.getElementById('loadingStatusText');
+        if (el) el.textContent = msg;
+    }
+
+    async function loadSheetData() {
+        state.isLoading = true;
+        state.loadError = null;
+        renderLoadingState();
+
+        try {
+            setLoadingStatus('Загружаем лист «Общая» (1/2)...');
+            const mainRows = await fetchSheetMatrix(SHEET_NAME, GID);
+
+            setLoadingStatus('Загружаем лист «Конкуренты» (2/2)...');
+            let competitorRows = [];
+            try {
+                competitorRows = await fetchSheetMatrix(COMPETITORS_SHEET_NAME, COMPETITORS_GID);
+            } catch (compErr) {
+                console.warn('Не удалось загрузить лист «Конкуренты»:', compErr.message);
+            }
+
+            setLoadingStatus('Обрабатываем данные и формируем витрину...');
+            parseCompetitorsData(competitorRows);
+            parseAndInitData(mainRows);
+        } catch (err) {
+            state.isLoading = false;
+            state.loadError = 'Не удалось подключиться к Google Таблице (' + (err.message || 'ошибка сети') + '). Проверьте интернет-соединение или права доступа к таблице.';
+            renderErrorState();
+        }
+    }
+
+    async function fetchSheetMatrix(sheetName, gid) {
+        // Уровень 1: Fetch CSV Export
+        try {
+            const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${gid}`;
+            const resp = await fetchWithTimeout(csvUrl, 12000);
+            if (resp.ok) {
+                const csvText = await resp.text();
+                if (!csvText.trim().startsWith('<!DOCTYPE html>') && !csvText.trim().startsWith('<html')) {
+                    const matrix = parseCsvToMatrix(csvText);
+                    if (matrix.length > 0) return matrix;
+                }
+            }
+        } catch (err1) {
+            console.warn(`[${sheetName}] Уровень 1 (CSV Export) не сработал:`, err1.message);
+        }
+
+        // Уровень 2: Fetch GViz JSON
+        try {
+            const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+            const resp = await fetchWithTimeout(url, 12000);
+            if (resp.ok) {
+                const text = await resp.text();
+                const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
+                if (match && match[1]) {
+                    const parsed = JSON.parse(match[1]);
+                    if (parsed && parsed.table) {
+                        const matrix = convertGvizTableToMatrix(parsed.table);
+                        if (matrix.length > 0) return matrix;
+                    }
+                }
+            }
+        } catch (err2) {
+            console.warn(`[${sheetName}] Уровень 2 (Fetch GViz) не сработал:`, err2.message);
+        }
+
+        // Уровень 3: JSONP (работает без CORS при открытии локального HTML-файла)
+        try {
+            const gvizTable = await fetchViaJsonp(sheetName);
+            if (gvizTable && gvizTable.rows && gvizTable.rows.length > 0) {
+                return convertGvizTableToMatrix(gvizTable);
+            }
+        } catch (err3) {
+            console.warn(`[${sheetName}] Уровень 3 (JSONP) не сработал:`, err3.message);
+        }
+
+        throw new Error(`не удалось получить данные с листа «${sheetName}»`);
+    }
+
+    function fetchViaJsonp(sheetName) {
+        return new Promise((resolve, reject) => {
+            const callbackName = 'gvizCb_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+            const script = document.createElement('script');
+            let isDone = false;
+
+            const cleanup = () => {
+                if (script.parentNode) script.parentNode.removeChild(script);
+                try { delete window[callbackName]; } catch (e) { window[callbackName] = undefined; }
+            };
+
+            const timer = setTimeout(() => {
+                if (!isDone) {
+                    isDone = true;
+                    cleanup();
+                    reject(new Error('Таймаут JSONP-запроса'));
+                }
+            }, 12000);
+
+            window[callbackName] = function (response) {
+                if (isDone) return;
+                isDone = true;
+                clearTimeout(timer);
+                cleanup();
+                if (response && response.status !== 'error' && response.table) {
+                    resolve(response.table);
+                } else {
+                    reject(new Error('Ошибка в ответе GViz'));
+                }
+            };
+
+            script.onerror = function () {
+                if (isDone) return;
+                isDone = true;
+                clearTimeout(timer);
+                cleanup();
+                reject(new Error('Ошибка загрузки скрипта JSONP'));
+            };
+
+            script.src = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json;responseHandler:${callbackName}&sheet=${encodeURIComponent(sheetName)}`;
+            document.head.appendChild(script);
+        });
+    }
+
+    function fetchWithTimeout(url, timeoutMs) {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeoutMs);
+        return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(id));
+    }
+
+    function convertGvizTableToMatrix(table) {
+        const matrix = [];
+        if (table.cols && table.cols.some(c => c && c.label)) {
+            matrix.push(table.cols.map(c => (c && c.label) ? String(c.label) : ''));
+        }
+        if (table.rows) {
+            for (const row of table.rows) {
+                if (!row || !row.c) continue;
+                const rowArr = row.c.map(cell => {
+                    if (!cell) return '';
+                    return (cell.v !== null && cell.v !== undefined) ? cell.v : (cell.f || '');
+                });
+                matrix.push(rowArr);
+            }
+        }
+        return matrix;
+    }
+
+    function parseCsvToMatrix(text) {
+        const rows = [];
+        let row = [];
+        let val = '';
+        let inQuotes = false;
+
+        for (let i = 0; i < text.length; i++) {
+            const ch = text[i];
+            const next = text[i + 1];
+
+            if (inQuotes) {
+                if (ch === '"' && next === '"') {
+                    val += '"';
+                    i++;
+                } else if (ch === '"') {
+                    inQuotes = false;
+                } else {
+                    val += ch;
+                }
+            } else {
+                if (ch === '"') {
+                    inQuotes = true;
+                } else if (ch === ',') {
+                    row.push(val);
+                    val = '';
+                } else if (ch === '\r' && next === '\n') {
+                    row.push(val);
+                    rows.push(row);
+                    row = [];
+                    val = '';
+                    i++;
+                } else if (ch === '\n' || ch === '\r') {
+                    row.push(val);
+                    rows.push(row);
+                    row = [];
+                    val = '';
+                } else {
+                    val += ch;
+                }
+            }
+        }
+        if (val !== '' || row.length > 0) {
+            row.push(val);
+            rows.push(row);
+        }
+        return rows;
+    }
+
+    // =========================================================================
+    // РАЗБОР ДАТ И ЛИСТА «КОНКУРЕНТЫ»
+    // =========================================================================
+    function parseSheetDate(val) {
+        if (!val) return null;
+        if (val instanceof Date && !isNaN(val.getTime())) return val;
+
+        const str = String(val).trim();
+        if (!str) return null;
+
+        // Формат Google GViz: Date(2025, 9, 15) (месяц 0-индексированный)
+        const gvizMatch = str.match(/^Date\(\s*(\d{4})\s*,\s*(\d{1,2})\s*,\s*(\d{1,2})/i);
+        if (gvizMatch) {
+            const d = new Date(parseInt(gvizMatch[1], 10), parseInt(gvizMatch[2], 10), parseInt(gvizMatch[3], 10));
+            return isNaN(d.getTime()) ? null : d;
+        }
+
+        // Формат ДД.ММ.ГГГГ или ДД/ММ/ГГГГ или ДД-ММ-ГГГГ
+        const ruMatch = str.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{2,4})/);
+        if (ruMatch) {
+            const day = parseInt(ruMatch[1], 10);
+            const month = parseInt(ruMatch[2], 10) - 1;
+            let year = parseInt(ruMatch[3], 10);
+            if (year < 100) year += 2000;
+            const d = new Date(year, month, day);
+            return isNaN(d.getTime()) ? null : d;
+        }
+
+        // Формат ISO: ГГГГ-ММ-ДД
+        const isoMatch = str.match(/^(\d{4})[./-](\d{1,2})[./-](\d{1,2})/);
+        if (isoMatch) {
+            const d = new Date(parseInt(isoMatch[1], 10), parseInt(isoMatch[2], 10) - 1, parseInt(isoMatch[3], 10));
+            return isNaN(d.getTime()) ? null : d;
+        }
+
+        // Серийный номер даты Excel / Google Sheets
+        if (/^\d{5}(\.\d+)?$/.test(str)) {
+            const serial = parseFloat(str);
+            const utcDays = Math.floor(serial - 25569);
+            const d = new Date(utcDays * 86400 * 1000);
+            return isNaN(d.getTime()) ? null : d;
+        }
+
+        return null;
+    }
+
+    function normalizeProjectKey(name) {
+        return String(name ?? '')
+            .trim()
+            .toLowerCase()
+            .replace(/ё/g, 'е')
+            .replace(/[«»"'`]/g, '')
+            .replace(/\s+/g, ' ');
+    }
+
+    function calcBottom20PercentAvg(lots) {
+        if (!lots || lots.length === 0) return null;
+        const sorted = [...lots].sort((a, b) => a.price - b.price);
+        const takeCount = Math.max(1, Math.ceil(sorted.length * 0.2));
+        const slice = sorted.slice(0, takeCount);
+        const avgPrice = slice.reduce((sum, item) => sum + item.price, 0) / slice.length;
+        const avgPriceSqm = slice.reduce((sum, item) => sum + item.pricePerSqm, 0) / slice.length;
+
+        // Группируем попавшие в 20% лоты по проектам конкурентов для всплывающей подсказки
+        const byProjectMap = new Map();
+        for (const item of slice) {
+            const pName = item.competitorProject || 'Проект не указан';
+            if (!byProjectMap.has(pName)) {
+                byProjectMap.set(pName, {
+                    project: pName,
+                    count: 0,
+                    sumPrice: 0,
+                    sumPriceSqm: 0
+                });
+            }
+            const entry = byProjectMap.get(pName);
+            entry.count += 1;
+            entry.sumPrice += item.price;
+            entry.sumPriceSqm += item.pricePerSqm;
+        }
+
+        const projectsBreakdown = Array.from(byProjectMap.values())
+            .map(p => ({
+                project: p.project,
+                count: p.count,
+                avgPrice: p.sumPrice / p.count,
+                avgPriceSqm: p.sumPriceSqm / p.count
+            }))
+            .sort((a, b) => a.avgPrice - b.avgPrice);
+
+        return {
+            avgPrice,
+            avgPriceSqm,
+            sampleCount: slice.length,
+            totalInGroup: sorted.length,
+            projectsBreakdown
+        };
+    }
+
+    function parseCompetitorsData(rows) {
+        state.competitorStatsMap.clear();
+        if (!rows || rows.length === 0) return;
+
+        let startRowIndex = 0;
+        let idxOurProject = 0;   // A: Наш проект
+        let idxCompProject = 1;  // B: Проект конкурента (ЖК)
+        let idxStatus = 6;       // G: Статус
+        let idxRooms = 7;        // H: Количество комнат
+        let idxArea = 8;         // I: Площадь, м²
+        let idxCalcBudget = 9;   // J: Расчетный бюджет лота
+        let idxOfferPrice = 10;  // K: Цена предложения, ₽
+        let idxContractDate = 11;// L: Дата договора
+        let idxRegDate = 12;     // M: Дата регистрации
+        let idxExportDate = 14;  // O: Дата выгрузки
+
+        for (let i = 0; i < Math.min(rows.length, 15); i++) {
+            const cellsLower = rows[i].map(c => String(c || '').toLowerCase().trim());
+            const joined = cellsLower.join('|');
+            if (
+                joined.includes('наш проект') ||
+                joined.includes('расчетный бюджет') ||
+                joined.includes('цена предложения')
+            ) {
+                startRowIndex = i + 1;
+                cellsLower.forEach((colName, idx) => {
+                    if (colName.includes('наш проект')) idxOurProject = idx;
+                    else if (colName === 'проект' || colName === 'жк' || colName.includes('название жк') || colName.includes('наименование жк') || (idx === 1 && !colName.includes('наш'))) idxCompProject = idx;
+                    else if (colName === 'статус' || colName.startsWith('статус')) idxStatus = idx;
+                    else if (colName.includes('комнат')) idxRooms = idx;
+                    else if (colName.includes('площадь')) idxArea = idx;
+                    else if (colName.includes('расчетный бюджет')) idxCalcBudget = idx;
+                    else if (colName.includes('цена предложения')) idxOfferPrice = idx;
+                    else if (colName.includes('дата договора')) idxContractDate = idx;
+                    else if (colName.includes('дата регистрации')) idxRegDate = idx;
+                    else if (colName.includes('дата выгрузки')) idxExportDate = idx;
+                });
+                break;
+            }
+        }
+
+        // Определяем опорную дату (максимальную дату выгрузки/сделки в таблице или текущую дату)
+        let maxRefTime = 0;
+        for (let i = startRowIndex; i < rows.length; i++) {
+            const r = rows[i];
+            if (!r) continue;
+            const dExp = parseSheetDate(r[idxExportDate]);
+            const dCon = parseSheetDate(r[idxContractDate]);
+            const dReg = parseSheetDate(r[idxRegDate]);
+            const candidate = dExp || dCon || dReg;
+            if (candidate && candidate.getTime() > maxRefTime) {
+                maxRefTime = candidate.getTime();
+            }
+        }
+        const referenceDate = maxRefTime > 0 ? new Date(maxRefTime) : new Date();
+        const sixMonthsAgo = new Date(referenceDate.getTime());
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+        sixMonthsAgo.setHours(0, 0, 0, 0);
+
+        const groupedLots = new Map();
+
+        for (let i = startRowIndex; i < rows.length; i++) {
+            const r = rows[i];
+            if (!r) continue;
+
+            // В столбце A указан наш ЖК; если не указан — пропускаем (в витрине будет прочерк)
+            const ourProjectRaw = String(r[idxOurProject] ?? '').trim();
+            if (!ourProjectRaw) continue;
+
+            const competitorProject = String(r[idxCompProject] ?? '').trim() || 'Конкурент (ЖК не указан)';
+
+            const area = parseNumber(r[idxArea]);
+            if (area <= 0) continue;
+
+            // Наименьшая положительная цена между "Расчетный бюджет лота" и "Цена предложения, ₽"
+            const budgetPrice = parseNumber(r[idxCalcBudget]);
+            const offerPrice = parseNumber(r[idxOfferPrice]);
+            const validPrices = [budgetPrice, offerPrice].filter(p => p > 0);
+            if (validPrices.length === 0) continue;
+
+            const minPrice = Math.min(...validPrices);
+            const pricePerSqm = minPrice / area;
+
+            const statusStr = String(r[idxStatus] ?? '').trim().toLowerCase();
+            const isOnSale = statusStr.includes('в продаже') || statusStr.includes('свободн');
+            const isSold = statusStr.includes('продан');
+
+            // Проверяем, попадает ли проданный лот в интервал последних 6 месяцев
+            let isSoldLast6Months = false;
+            if (isSold) {
+                const dealDate = parseSheetDate(r[idxContractDate]) || parseSheetDate(r[idxRegDate]);
+                if (dealDate && dealDate.getTime() >= sixMonthsAgo.getTime()) {
+                    isSoldLast6Months = true;
+                }
+            }
+
+            if (!isOnSale && !isSoldLast6Months) continue;
+
+            const roomsLabel = normalizeRooms(r[idxRooms], '');
+            if (roomsLabel === 'Не указано') continue;
+
+            const rangeInfo = getAreaRange(area);
+            const groupKey = `${normalizeProjectKey(ourProjectRaw)}__${roomsLabel}__${rangeInfo.label}`;
+
+            if (!groupedLots.has(groupKey)) {
+                groupedLots.set(groupKey, { onSale: [], sold6m: [] });
+            }
+
+            const lotObj = {
+                price: minPrice,
+                pricePerSqm,
+                area,
+                competitorProject
+            };
+            const bucket = groupedLots.get(groupKey);
+            if (isOnSale) {
+                bucket.onSale.push(lotObj);
+            }
+            if (isSoldLast6Months) {
+                bucket.sold6m.push(lotObj);
+            }
+        }
+
+        for (const [groupKey, bucket] of groupedLots.entries()) {
+            state.competitorStatsMap.set(groupKey, {
+                onSaleTop20: calcBottom20PercentAvg(bucket.onSale),
+                sold6mTop20: calcBottom20PercentAvg(bucket.sold6m)
+            });
+        }
+    }
+
+    // =========================================================================
+    // РАЗБОР СТРОК ЛИСТА «ОБЩАЯ» И ПРАВИЛА ФИЛЬТРАЦИИ
+    // =========================================================================
+    function parseAndInitData(rows) {
+        let startRowIndex = 0;
+
+        let idxNumber = 1;    // B: Номер помещения
+        let idxBuilding = 2;  // C: Название дома
+        let idxProject = 3;   // D: Название ЖК
+        let idxArea = 4;      // E: Площадь, м2
+        let idxRooms = 5;     // F: Кол-во комнат
+        let idxUnitType = 7;  // H: Тип помещения
+        let idxPriceSale = 8; // I: Цена продажи
+        let idxStatusJ = 9;   // J: Статус
+        let idxPriceNet = 11; // L: Цена чистая
+        let idxStatusN = 13;  // N: Статус итоговый
+
+        for (let i = 0; i < Math.min(rows.length, 15); i++) {
+            const cellsLower = rows[i].map(c => String(c || '').toLowerCase().trim());
+            const joined = cellsLower.join('|');
+            if (
+                joined.includes('id помещения') ||
+                joined.includes('название жк') ||
+                (joined.includes('площадь') && joined.includes('статус'))
+            ) {
+                startRowIndex = i + 1;
+                cellsLower.forEach((col, idx) => {
+                    if (col.includes('номер помещения') || col === 'номер') idxNumber = idx;
+                    else if (col.includes('название дома') || col === 'дом' || col.includes('корпус')) idxBuilding = idx;
+                    else if (col.includes('название жк') || col === 'жк' || col === 'проект') idxProject = idx;
+                    else if (col.includes('площадь')) idxArea = idx;
+                    else if (col.includes('комнат') || col === 'комн.') idxRooms = idx;
+                    else if (col.includes('тип помещения') || col === 'тип') idxUnitType = idx;
+                    else if (col.includes('цена продажи')) idxPriceSale = idx;
+                    else if (col === 'статус') idxStatusJ = idx;
+                    else if (col.includes('цена чистая')) idxPriceNet = idx;
+                    else if (col.includes('статус итоговый')) idxStatusN = idx;
+                });
+                break;
+            }
+        }
+
+        const apartments = [];
+
+        for (let i = startRowIndex; i < rows.length; i++) {
+            const r = rows[i];
+            if (!r || r.length < 6) continue;
+
+            const number = String(r[idxNumber] ?? '').trim();
+            const building = String(r[idxBuilding] ?? '').trim() || 'Дом не указан';
+            const project = String(r[idxProject] ?? '').trim() || 'Без проекта';
+            const area = parseNumber(r[idxArea]);
+            const roomsRaw = r[idxRooms];
+            const unitType = String(r[idxUnitType] ?? '').trim();
+            const priceSale = parseNumber(r[idxPriceSale]);
+            const statusJ = String(r[idxStatusJ] ?? '').trim();
+            const priceNet = parseNumber(r[idxPriceNet]);
+            const statusN = String(r[idxStatusN] ?? '').trim();
+
+            if (!number && area <= 0) continue;
+
+            // 1. Тип помещения: оставляем жилые лоты (квартира, студия, апартаменты), отсекаем паркинг/кладовки/коммерцию
+            const unitTypeLower = unitType.toLowerCase();
+            const meta = `${unitTypeLower} ${number} ${roomsRaw}`.toLowerCase();
+            if (NON_APARTMENT_KEYWORDS.some(kw => meta.includes(kw))) {
+                continue;
+            }
+            if (
+                unitTypeLower !== '' &&
+                !unitTypeLower.includes('квартир') &&
+                !unitTypeLower.includes('студ') &&
+                !unitTypeLower.includes('жил') &&
+                !unitTypeLower.includes('апарт')
+            ) {
+                continue;
+            }
+
+            // 2. Статус: 'Статус итоговый', если пустой — 'Статус'
+            const finalStatus = statusN !== '' ? statusN : statusJ;
+            const statusLower = finalStatus.toLowerCase();
+            if (EXCLUDED_STATUS_KEYWORDS.some(kw => statusLower.includes(kw))) {
+                continue;
+            }
+
+            // 3. Площадь > 0
+            if (area <= 0) continue;
+
+            // 4. Цена: 'Цена продажи', если 0/пусто — 'Цена чистая'
+            const price = priceSale > 0 ? priceSale : priceNet;
+            if (price <= 0) continue;
+
+            const pricePerSqm = price / area;
+            const roomsLabel = normalizeRooms(roomsRaw, unitTypeLower);
+
+            apartments.push({
+                number: number || 'б/н',
+                building,
+                project,
+                area,
+                roomsLabel,
+                price,
+                pricePerSqm,
+                status: finalStatus || 'Свободно'
+            });
+        }
+
+        state.allValidApartments = apartments;
+        state.isLoading = false;
+        state.loadError = null;
+
+        updateAreaPlaceholders();
+        renderFilterChips();
+        renderResults();
+    }
+
+    function parseNumber(val) {
+        if (typeof val === 'number') return isFinite(val) ? val : 0;
+        if (val === null || val === undefined) return 0;
+        const cleaned = String(val)
+            .replace(/[\s  ]/g, '')
+            .replace(/,/g, '.')
+            .replace(/[^\d.-]/g, '');
+        const num = parseFloat(cleaned);
+        return isFinite(num) ? num : 0;
+    }
+
+    function normalizeRooms(raw, unitTypeHint = '') {
+        const str = String(raw ?? '').trim().toLowerCase();
+        const hint = String(unitTypeHint ?? '').trim().toLowerCase();
+
+        if (str === '0' || str.includes('студ') || str === 'ст' || str === 'с' || hint.includes('студ')) {
+            return 'Студия';
+        }
+        if (str === '') {
+            if (hint.includes('квартир') || hint.includes('жил') || hint.includes('апарт')) {
+                return 'Студия';
+            }
+            return 'Не указано';
+        }
+        // Евро-форматы ("2е", "евро-2", "2-евро")
+        const euroMatch = str.match(/(\d+)\s*е|евро[^\d]*(\d+)/);
+        if (euroMatch) {
+            const count = parseInt(euroMatch[1] || euroMatch[2], 10);
+            return `${count}-комнатные (евро)`;
+        }
+        // Стандартные числа комнат ("1", "2", "3", "1к", "2-комн.")
+        const match = str.match(/\d+/);
+        if (match) {
+            const count = parseInt(match[0], 10);
+            if (count === 0) return 'Студия';
+            return `${count}-комнатные`;
+        }
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function getRoomSortWeight(label) {
+        if (label === 'Студия') return 0;
+        const m = label.match(/^(\d+)/);
+        if (m) {
+            const base = parseInt(m[1], 10) * 10;
+            return label.includes('(евро)') ? base + 5 : base;
+        }
+        return 999;
+    }
+
+    function getAreaRange(area) {
+        const min = Math.floor(area / 3) * 3;
+        const max = min + 3;
+        return {
+            min,
+            max,
+            label: `${min}–${max} м²`
+        };
+    }
+
+    // =========================================================================
+    // ФИЛЬТРАЦИЯ И РАСЧЁТ ГРУПП (ПРОЕКТ -> КОМНАТНОСТЬ -> ДИАПАЗОН 3 М²)
+    // =========================================================================
+    function getFilteredApartments() {
+        return state.allValidApartments.filter(apt => {
+            if (state.selectedProject !== 'ALL' && apt.project !== state.selectedProject) {
+                return false;
+            }
+            if (state.selectedBuilding !== 'ALL' && apt.building !== state.selectedBuilding) {
+                return false;
+            }
+            if (state.selectedRooms.size > 0 && !state.selectedRooms.has(apt.roomsLabel)) {
+                return false;
+            }
+            if (state.areaMin !== null && apt.area < state.areaMin) {
+                return false;
+            }
+            if (state.areaMax !== null && apt.area > state.areaMax) {
+                return false;
+            }
+            return true;
+        });
+    }
+
+    function buildGroupedHierarchy(filteredApts) {
+        const projectsMap = new Map();
+
+        for (const apt of filteredApts) {
+            if (!projectsMap.has(apt.project)) {
+                projectsMap.set(apt.project, new Map());
+            }
+            const roomsMap = projectsMap.get(apt.project);
+            if (!roomsMap.has(apt.roomsLabel)) {
+                roomsMap.set(apt.roomsLabel, []);
+            }
+            roomsMap.get(apt.roomsLabel).push(apt);
+        }
+
+        const result = [];
+        const sortedProjects = Array.from(projectsMap.keys()).sort((a, b) => a.localeCompare(b, 'ru'));
+
+        for (const projectName of sortedProjects) {
+            const roomsMap = projectsMap.get(projectName);
+            const sortedRooms = Array.from(roomsMap.keys()).sort((a, b) => {
+                const wA = getRoomSortWeight(a);
+                const wB = getRoomSortWeight(b);
+                return wA !== wB ? wA - wB : a.localeCompare(b, 'ru');
+            });
+
+            const roomsList = [];
+            let projectTotal = 0;
+
+            for (const roomLabel of sortedRooms) {
+                const aptsInRoom = roomsMap.get(roomLabel);
+                const rangesMap = new Map();
+
+                for (const apt of aptsInRoom) {
+                    const rInfo = getAreaRange(apt.area);
+                    if (!rangesMap.has(rInfo.label)) {
+                        rangesMap.set(rInfo.label, {
+                            min: rInfo.min,
+                            max: rInfo.max,
+                            label: rInfo.label,
+                            apartments: []
+                        });
+                    }
+                    rangesMap.get(rInfo.label).apartments.push(apt);
+                }
+
+                const sortedRanges = Array.from(rangesMap.values()).sort((a, b) => a.min - b.min);
+
+                const processedRanges = sortedRanges.map(rangeObj => {
+                    const sortedApts = [...rangeObj.apartments].sort((a, b) => a.price - b.price);
+                    const top3 = sortedApts.slice(0, 3);
+                    const restOutsideTop3 = sortedApts.slice(3);
+
+                    const compKey = `${normalizeProjectKey(projectName)}__${roomLabel}__${rangeObj.label}`;
+                    const competitorStats = state.competitorStatsMap.get(compKey) || null;
+
+                    const top3WithComparison = top3.map((apt, idx) => {
+                        const others = sortedApts.filter((_, i) => i !== idx);
+                        return {
+                            rank: idx + 1,
+                            apt,
+                            comparison: calcComparison(apt, others),
+                            competitorStats
+                        };
+                    });
+
+                    const groupAvgPrice = sortedApts.reduce((s, a) => s + a.price, 0) / sortedApts.length;
+                    const groupAvgPriceSqm = sortedApts.reduce((s, a) => s + a.pricePerSqm, 0) / sortedApts.length;
+
+                    return {
+                        label: rangeObj.label,
+                        totalCount: sortedApts.length,
+                        top3: top3WithComparison,
+                        restOutsideTop3,
+                        groupAvgPrice,
+                        groupAvgPriceSqm,
+                        competitorStats
+                    };
+                });
+
+                const roomCount = processedRanges.reduce((s, r) => s + r.totalCount, 0);
+                projectTotal += roomCount;
+
+                roomsList.push({
+                    roomLabel,
+                    totalCount: roomCount,
+                    ranges: processedRanges
+                });
+            }
+
+            result.push({
+                projectName,
+                totalCount: projectTotal,
+                rooms: roomsList
+            });
+        }
+
+        return result;
+    }
+
+    function calcComparison(targetApt, others) {
+        if (!others || others.length === 0) return null;
+
+        const count = others.length;
+        const avgPrice = others.reduce((s, a) => s + a.price, 0) / count;
+        const avgPriceSqm = others.reduce((s, a) => s + a.pricePerSqm, 0) / count;
+        const avgArea = others.reduce((s, a) => s + a.area, 0) / count;
+
+        const priceDiff = targetApt.price - avgPrice;
+        const priceDiffPct = avgPrice > 0 ? ((targetApt.price / avgPrice) - 1) * 100 : 0;
+
+        const sqmDiff = targetApt.pricePerSqm - avgPriceSqm;
+        const sqmDiffPct = avgPriceSqm > 0 ? ((targetApt.pricePerSqm / avgPriceSqm) - 1) * 100 : 0;
+
+        return {
+            count,
+            avgPrice,
+            avgPriceSqm,
+            avgArea,
+            priceDiff,
+            priceDiffPct,
+            sqmDiff,
+            sqmDiffPct
+        };
+    }
+
+    // =========================================================================
+    // РЕНДЕРИНГ ПАНЕЛИ ФИЛЬТРОВ (ПРОЕКТ, ДОМ, КОМНАТНОСТЬ, ДИАПАЗОН ПЛОЩАДЕЙ)
+    // =========================================================================
+    function renderFilterChips() {
+        const projectCounts = new Map();
+        for (const apt of state.allValidApartments) {
+            projectCounts.set(apt.project, (projectCounts.get(apt.project) || 0) + 1);
+        }
+        const sortedProjects = Array.from(projectCounts.keys()).sort((a, b) => a.localeCompare(b, 'ru'));
+
+        let projHtml = `
+            <button type="button" class="chip ${state.selectedProject === 'ALL' ? 'active-dark' : ''}" onclick="selectProject('ALL')">
+                <span>Все проекты</span>
+                <span class="chip-badge">${state.allValidApartments.length}</span>
+            </button>
+        `;
+        for (const proj of sortedProjects) {
+            const isActive = state.selectedProject === proj;
+            projHtml += `
+                <button type="button" class="chip ${isActive ? 'active-dark' : ''}" onclick="selectProject('${escapeAttr(proj)}')">
+                    <span>${escapeHtml(proj)}</span>
+                    <span class="chip-badge">${projectCounts.get(proj)}</span>
+                </button>
+            `;
+        }
+        document.getElementById('projectChips').innerHTML = projHtml;
+
+        const aptsForBuildings = state.selectedProject === 'ALL'
+            ? state.allValidApartments
+            : state.allValidApartments.filter(a => a.project === state.selectedProject);
+
+        const buildingCounts = new Map();
+        for (const apt of aptsForBuildings) {
+            buildingCounts.set(apt.building, (buildingCounts.get(apt.building) || 0) + 1);
+        }
+
+        if (state.selectedBuilding !== 'ALL' && !buildingCounts.has(state.selectedBuilding)) {
+            state.selectedBuilding = 'ALL';
+        }
+
+        document.getElementById('resetBuildingBtn').classList.toggle('hidden', state.selectedBuilding === 'ALL');
+
+        const sortedBuildings = Array.from(buildingCounts.keys()).sort((a, b) =>
+            a.localeCompare(b, 'ru', { numeric: true })
+        );
+
+        let bldHtml = `
+            <button type="button" class="chip ${state.selectedBuilding === 'ALL' ? 'active-dark' : ''}" onclick="selectBuilding('ALL')">
+                <span>Все дома</span>
+                <span class="chip-badge">${aptsForBuildings.length}</span>
+            </button>
+        `;
+        for (const bld of sortedBuildings) {
+            const isActive = state.selectedBuilding === bld;
+            bldHtml += `
+                <button type="button" class="chip ${isActive ? 'active-dark' : ''}" onclick="selectBuilding('${escapeAttr(bld)}')">
+                    <span>${escapeHtml(bld)}</span>
+                    <span class="chip-badge">${buildingCounts.get(bld)}</span>
+                </button>
+            `;
+        }
+        document.getElementById('buildingChips').innerHTML = bldHtml;
+
+        const roomSet = new Set();
+        aptsForBuildings.forEach(a => roomSet.add(a.roomsLabel));
+        const sortedRooms = Array.from(roomSet).sort((a, b) => getRoomSortWeight(a) - getRoomSortWeight(b));
+
+        const isAllRooms = state.selectedRooms.size === 0;
+        document.getElementById('resetRoomsBtn').classList.toggle('hidden', isAllRooms);
+
+        let roomHtml = `
+            <button type="button" class="chip ${isAllRooms ? 'active-red' : ''}" onclick="clearRoomSelection()">
+                <span>Все</span>
+            </button>
+        `;
+        for (const rLabel of sortedRooms) {
+            const isActive = state.selectedRooms.has(rLabel);
+            roomHtml += `
+                <button type="button" class="chip ${isActive ? 'active-red' : ''}" onclick="toggleRoomSelection('${escapeAttr(rLabel)}')">
+                    <span>${isActive ? '✓ ' : ''}${escapeHtml(rLabel)}</span>
+                </button>
+            `;
+        }
+        document.getElementById('roomChips').innerHTML = roomHtml;
+    }
+
+    function updateAreaPlaceholders() {
+        const minEl = document.getElementById('areaMinInput');
+        const maxEl = document.getElementById('areaMaxInput');
+        if (!minEl || !maxEl) return;
+
+        const pool = state.selectedProject === 'ALL'
+            ? state.allValidApartments
+            : state.allValidApartments.filter(a => a.project === state.selectedProject);
+
+        if (pool.length > 0) {
+            let minA = Infinity;
+            let maxA = -Infinity;
+            for (const a of pool) {
+                if (a.area < minA) minA = a.area;
+                if (a.area > maxA) maxA = a.area;
+            }
+            minEl.placeholder = `от ${Math.floor(minA)}`;
+            maxEl.placeholder = `до ${Math.ceil(maxA)}`;
+        } else {
+            minEl.placeholder = 'От';
+            maxEl.placeholder = 'До';
+        }
+    }
+
+    // =========================================================================
+    // ВСПЛЫВАЮЩАЯ ПОДСКАЗКА ПО ПРОЕКТАМ КОНКУРЕНТОВ ПРИ НАВЕДЕНИИ
+    // =========================================================================
+    function showCompetitorTooltip(event, triggerEl) {
+        const tooltip = document.getElementById('compTooltip');
+        if (!tooltip || !triggerEl) return;
+
+        const rawJson = triggerEl.getAttribute('data-tooltip');
+        if (!rawJson) return;
+
+        let payload;
+        try {
+            payload = JSON.parse(rawJson);
+        } catch (e) {
+            return;
+        }
+
+        const rowsHtml = (payload.projects || []).map(p => `
+            <div class="tooltip-row">
+                <div>
+                    <div class="tooltip-proj-name">${escapeHtml(p.project)}</div>
+                    <div class="tooltip-proj-meta">${p.count} лот(ов) в выборке 20%</div>
+                </div>
+                <div class="tooltip-proj-price">
+                    <strong>${formatCurrency(p.avgPrice)}</strong>
+                    <span>${formatCurrency(p.avgPriceSqm)}/м²</span>
+                </div>
+            </div>
+        `).join('');
+
+        tooltip.innerHTML = `
+            <div class="tooltip-header">${escapeHtml(payload.title || 'Проекты конкурентов')}</div>
+            ${rowsHtml}
+            <div class="tooltip-footer">
+                <span>Итого среднее (${payload.sampleCount} из ${payload.totalInGroup}):</span>
+                <span>${formatCurrency(payload.avgPrice)} (${formatCurrency(payload.avgPriceSqm)}/м²)</span>
+            </div>
+        `;
+
+        tooltip.classList.remove('hidden');
+        moveCompetitorTooltip(event);
+    }
+
+    function moveCompetitorTooltip(event) {
+        const tooltip = document.getElementById('compTooltip');
+        if (!tooltip || tooltip.classList.contains('hidden')) return;
+
+        const pad = 14;
+        const rect = tooltip.getBoundingClientRect();
+        let left = event.clientX + pad;
+        let top = event.clientY + pad;
+
+        if (left + rect.width > window.innerWidth - 10) {
+            left = Math.max(10, event.clientX - rect.width - pad);
+        }
+        if (top + rect.height > window.innerHeight - 10) {
+            top = Math.max(10, event.clientY - rect.height - pad);
+        }
+
+        tooltip.style.left = left + 'px';
+        tooltip.style.top = top + 'px';
+    }
+
+    function hideCompetitorTooltip() {
+        const tooltip = document.getElementById('compTooltip');
+        if (tooltip) tooltip.classList.add('hidden');
+    }
+
+    // =========================================================================
+    // РЕНДЕРИНГ РЕЗУЛЬТАТОВ
+    // =========================================================================
+    function renderLoadingState() {
+        document.getElementById('resultsContainer').innerHTML = `
+            <div class="state-box">
+                <div class="spinner"></div>
+                <div class="state-title">Загрузка квартир из таблицы...</div>
+                <div class="state-desc" id="loadingStatusText">Подключаемся к Google Таблице...</div>
+            </div>
+        `;
+    }
+
+    function renderErrorState() {
+        document.getElementById('resultsContainer').innerHTML = `
+            <div class="state-box">
+                <div class="state-title">Ошибка загрузки данных</div>
+                <div class="state-desc">${escapeHtml(state.loadError)}</div>
+                <button type="button" class="btn-primary" onclick="loadSheetData()">Повторить загрузку</button>
+            </div>
+        `;
+    }
+
+    function renderResults() {
+        hideCompetitorTooltip();
+
+        if (state.isLoading) {
+            renderLoadingState();
+            return;
+        }
+        if (state.loadError) {
+            renderErrorState();
+            return;
+        }
+
+        const filteredApts = getFilteredApartments();
+        const groupedProjects = buildGroupedHierarchy(filteredApts);
+        const container = document.getElementById('resultsContainer');
+
+        if (groupedProjects.length === 0) {
+            container.innerHTML = `
+                <div class="state-box">
+                    <div class="state-title">По выбранным фильтрам квартир не найдено</div>
+                    <div class="state-desc">Попробуйте изменить диапазон площадей, выбрать другой дом, комнатность или проект.</div>
+                    <button type="button" class="btn-primary" onclick="resetAllFilters()">Сбросить все фильтры</button>
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+
+        for (const proj of groupedProjects) {
+            html += `
+                <article class="project-card">
+                    <div class="project-header">
+                        <h2 class="project-title">${escapeHtml(proj.projectName)}</h2>
+                        <div class="project-pill">В выборке: ${proj.totalCount} кв.</div>
+                    </div>
+            `;
+
+            for (const room of proj.rooms) {
+                html += `
+                    <section class="room-section">
+                        <div class="room-header">
+                            <span class="room-badge">${escapeHtml(room.roomLabel)}</span>
+                        </div>
+                `;
+
+                for (const rangeObj of room.ranges) {
+                    const rangeKey = `${proj.projectName}__${room.roomLabel}__${rangeObj.label}`;
+                    const isCollapsed = state.collapsedRanges.has(rangeKey);
+                    html += renderRangeCard(room.roomLabel, rangeObj, rangeKey, isCollapsed);
+                }
+
+                html += `</section>`;
+            }
+
+            html += `</article>`;
+        }
+
+        container.innerHTML = html;
+    }
+
+    function renderCompetitorCell(statObj, ourPrice, tooltipTitle) {
+        if (!statObj) {
+            return `<span class="text-dash">—</span>`;
+        }
+
+        // Разница между нашей квартирой и ценой конкурентов: если наша дешевле (< 0) — зелёный, дороже (> 0) — красный
+        const diff = ourPrice - statObj.avgPrice;
+        const diffPct = statObj.avgPrice > 0 ? ((ourPrice / statObj.avgPrice) - 1) * 100 : 0;
+        const isEqual = Math.round(diff) === 0;
+        const isCheaper = diff < 0;
+        const badgeClass = isEqual ? 'diff-neutral' : (isCheaper ? 'diff-good' : 'diff-bad');
+        const sign = diff > 0 ? '+' : '';
+
+        const tooltipPayload = escapeHtml(JSON.stringify({
+            title: tooltipTitle,
+            avgPrice: statObj.avgPrice,
+            avgPriceSqm: statObj.avgPriceSqm,
+            sampleCount: statObj.sampleCount,
+            totalInGroup: statObj.totalInGroup,
+            projects: statObj.projectsBreakdown
+        }));
+
+        return `
+            <div class="comp-cell-trigger"
+                 data-tooltip="${tooltipPayload}"
+                 onmouseenter="showCompetitorTooltip(event, this)"
+                 onmousemove="moveCompetitorTooltip(event)"
+                 onmouseleave="hideCompetitorTooltip()">
+                <div class="comp-main comp-main-dotted">${formatCurrency(statObj.avgPrice)}</div>
+                <span class="comp-diff-badge ${badgeClass}">
+                    ${sign}${formatCurrency(diff)} (${sign}${diffPct.toFixed(1)}%)
+                </span>
+            </div>
+        `;
+    }
+
+    function renderRangeCard(roomLabel, rangeObj, rangeKey, isCollapsed) {
+        const safeKey = escapeAttr(rangeKey);
+        const isOthersOpen = state.expandedOtherLots.has(rangeKey);
+
+        let topRowsHtml = '';
+        for (const item of rangeObj.top3) {
+            const { rank, apt, comparison, competitorStats } = item;
+            const rankClass = rank === 1 ? 'rank-1' : (rank === 2 ? 'rank-2' : 'rank-3');
+
+            let avgOthersHtml = '';
+            let diffHtml = '';
+
+            if (!comparison) {
+                avgOthersHtml = `<span class="text-muted-italic">Единственная в группе</span>`;
+                diffHtml = `<span class="text-muted-italic">—</span>`;
+            } else {
+                const isEqual = Math.round(comparison.priceDiff) === 0;
+                const isCheaper = comparison.priceDiff < 0;
+                const diffClass = isEqual ? 'diff-neutral' : (isCheaper ? 'diff-good' : 'diff-bad');
+                const sign = comparison.priceDiff > 0 ? '+' : '';
+
+                avgOthersHtml = `
+                    <div class="comp-main">${formatCurrency(comparison.avgPrice)}</div>
+                    <div class="comp-sub">${formatCurrency(comparison.avgPriceSqm)}/м²</div>
+                `;
+
+                diffHtml = `
+                    <div>
+                        <span class="diff-pill ${diffClass}">
+                            ${sign}${formatCurrency(comparison.priceDiff)} (${sign}${comparison.priceDiffPct.toFixed(1)}%)
+                        </span>
+                    </div>
+                `;
+            }
+
+            const compOnSaleHtml = renderCompetitorCell(
+                competitorStats ? competitorStats.onSaleTop20 : null,
+                apt.price,
+                'Конкуренты в продаже (20% дешёвых)'
+            );
+            const compSold6mHtml = renderCompetitorCell(
+                competitorStats ? competitorStats.sold6mTop20 : null,
+                apt.price,
+                'Проданные за 6 мес. (20% дешёвых)'
+            );
+
+            topRowsHtml += `
+                <tr>
+                    <td style="width: 72px;"><span class="rank-badge ${rankClass}">#${rank}</span></td>
+                    <td>
+                        <div class="apt-num">Кв. № ${escapeHtml(apt.number)}</div>
+                        <div class="apt-building">${escapeHtml(apt.building)}</div>
+                    </td>
+                    <td class="text-right sqm-text">${formatArea(apt.area)} м²</td>
+                    <td class="text-right price-bold">${formatCurrency(apt.price)}</td>
+                    <td class="text-right sqm-text">${formatCurrency(apt.pricePerSqm)}/м²</td>
+                    <td class="text-right">${avgOthersHtml}</td>
+                    <td class="text-right">${diffHtml}</td>
+                    <td class="text-right">${compOnSaleHtml}</td>
+                    <td class="text-right">${compSold6mHtml}</td>
+                </tr>
+            `;
+        }
+
+        let othersSectionHtml = '';
+        if (rangeObj.restOutsideTop3.length > 0) {
+            const restCount = rangeObj.restOutsideTop3.length;
+            let restTableHtml = '';
+
+            if (isOthersOpen) {
+                const restRows = rangeObj.restOutsideTop3.map((apt, i) => `
+                    <tr>
+                        <td style="width: 60px; color: #737373; font-weight: 700;">#${i + 4}</td>
+                        <td><strong>Кв. № ${escapeHtml(apt.number)}</strong> (${escapeHtml(apt.building)})</td>
+                        <td>${escapeHtml(apt.status)}</td>
+                        <td class="text-right">${formatArea(apt.area)} м²</td>
+                        <td class="text-right" style="font-weight: 700; color: #0a0a0a;">${formatCurrency(apt.price)}</td>
+                        <td class="text-right">${formatCurrency(apt.pricePerSqm)}/м²</td>
+                    </tr>
+                `).join('');
+
+                restTableHtml = `
+                    <div style="overflow-x: auto;">
+                        <table class="others-table">
+                            <thead>
+                                <tr>
+                                    <th>Поз.</th>
+                                    <th>Квартира / Дом</th>
+                                    <th>Статус</th>
+                                    <th class="text-right">Площадь</th>
+                                    <th class="text-right">Цена</th>
+                                    <th class="text-right">Цена за м²</th>
+                                </tr>
+                            </thead>
+                            <tbody>${restRows}</tbody>
+                        </table>
+                    </div>
+                `;
+            }
+
+            othersSectionHtml = `
+                <div class="others-toggle-bar">
+                    <button type="button" class="others-toggle-btn" onclick="toggleOtherLots('${safeKey}')">
+                        <span>${isOthersOpen ? '▲ Скрыть остальные квартиры в группе' : `▼ Показать все остальные квартиры в группе (${restCount} шт.)`}</span>
+                    </button>
+                    ${restTableHtml}
+                </div>
+            `;
+        }
+
+        return `
+            <div class="range-card">
+                <div class="range-header" onclick="toggleRangeAccordion('${safeKey}')">
+                    <div class="range-header-left">
+                        <span class="chevron-box">${isCollapsed ? '▸' : '▾'}</span>
+                        <span class="range-room-title">${escapeHtml(roomLabel)}</span>
+                        <span class="range-divider">|</span>
+                        <span class="range-pill">${escapeHtml(rangeObj.label)}</span>
+                    </div>
+                    <div class="range-count-tag">ТОП-${rangeObj.top3.length} из ${rangeObj.totalCount}</div>
+                </div>
+
+                <div class="${isCollapsed ? 'hidden' : ''}">
+                    <div class="table-wrap">
+                        <table class="top-table">
+                            <thead>
+                                <tr>
+                                    <th>Место</th>
+                                    <th>Дом и № кв.</th>
+                                    <th class="text-right">Площадь</th>
+                                    <th class="text-right">Цена</th>
+                                    <th class="text-right">Цена за м²</th>
+                                    <th class="text-right">Средняя остальных</th>
+                                    <th class="text-right">Сравнение со средним</th>
+                                    <th class="text-right">Конкуренты: ср. 20%<br>дешёвых (в продаже)</th>
+                                    <th class="text-right">Конкуренты: ср. 20%<br>проданных (за 6 мес.)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${topRowsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                    ${othersSectionHtml}
+                </div>
+            </div>
+        `;
+    }
+
+    // =========================================================================
+    // ОБРАБОТЧИКИ СОБЫТИЙ ФИЛЬТРОВ И АККОРДЕОНОВ
+    // =========================================================================
+    function selectProject(projectName) {
+        state.selectedProject = projectName;
+        state.selectedBuilding = 'ALL';
+        updateAreaPlaceholders();
+        renderFilterChips();
+        renderResults();
+    }
+
+    function selectBuilding(buildingName) {
+        state.selectedBuilding = buildingName;
+        renderFilterChips();
+        renderResults();
+    }
+
+    function resetBuildingFilter() {
+        state.selectedBuilding = 'ALL';
+        renderFilterChips();
+        renderResults();
+    }
+
+    function toggleRoomSelection(roomLabel) {
+        if (state.selectedRooms.has(roomLabel)) {
+            state.selectedRooms.delete(roomLabel);
+        } else {
+            state.selectedRooms.add(roomLabel);
+        }
+        renderFilterChips();
+        renderResults();
+    }
+
+    function clearRoomSelection() {
+        state.selectedRooms.clear();
+        renderFilterChips();
+        renderResults();
+    }
+
+    function handleAreaInput() {
+        const minRaw = document.getElementById('areaMinInput').value.trim();
+        const maxRaw = document.getElementById('areaMaxInput').value.trim();
+
+        const minVal = minRaw !== '' ? parseFloat(minRaw.replace(',', '.')) : null;
+        const maxVal = maxRaw !== '' ? parseFloat(maxRaw.replace(',', '.')) : null;
+
+        state.areaMin = (minVal !== null && isFinite(minVal) && minVal >= 0) ? minVal : null;
+        state.areaMax = (maxVal !== null && isFinite(maxVal) && maxVal >= 0) ? maxVal : null;
+
+        const hasAreaFilter = state.areaMin !== null || state.areaMax !== null;
+        document.getElementById('resetAreaBtn').classList.toggle('hidden', !hasAreaFilter);
+
+        renderResults();
+    }
+
+    function clearAreaRange() {
+        document.getElementById('areaMinInput').value = '';
+        document.getElementById('areaMaxInput').value = '';
+        state.areaMin = null;
+        state.areaMax = null;
+        document.getElementById('resetAreaBtn').classList.add('hidden');
+        renderResults();
+    }
+
+    function resetAllFilters() {
+        state.selectedProject = 'ALL';
+        state.selectedBuilding = 'ALL';
+        state.selectedRooms.clear();
+        clearAreaRange();
+        updateAreaPlaceholders();
+        renderFilterChips();
+        renderResults();
+    }
+
+    function toggleRangeAccordion(rangeKey) {
+        if (state.collapsedRanges.has(rangeKey)) {
+            state.collapsedRanges.delete(rangeKey);
+        } else {
+            state.collapsedRanges.add(rangeKey);
+        }
+        renderResults();
+    }
+
+    function toggleOtherLots(rangeKey) {
+        if (state.expandedOtherLots.has(rangeKey)) {
+            state.expandedOtherLots.delete(rangeKey);
+        } else {
+            state.expandedOtherLots.add(rangeKey);
+        }
+        renderResults();
+    }
+
+    function toggleAllAccordions(expand) {
+        if (expand) {
+            state.collapsedRanges.clear();
+        } else {
+            const grouped = buildGroupedHierarchy(getFilteredApartments());
+            for (const p of grouped) {
+                for (const r of p.rooms) {
+                    for (const rg of r.ranges) {
+                        state.collapsedRanges.add(`${p.projectName}__${r.roomLabel}__${rg.label}`);
+                    }
+                }
+            }
+        }
+        renderResults();
+    }
+
+    // =========================================================================
+    // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ФОРМАТИРОВАНИЯ
+    // =========================================================================
+    function formatCurrency(val) {
+        if (val === null || val === undefined || !isFinite(val)) return '—';
+        return new Intl.NumberFormat('ru-RU', {
+            style: 'currency',
+            currency: 'RUB',
+            maximumFractionDigits: 0
+        }).format(Math.round(val));
+    }
+
+    function formatArea(val) {
+        return new Intl.NumberFormat('ru-RU', {
+            minimumFractionDigits: 1,
+            maximumFractionDigits: 2
+        }).format(val);
+    }
+
+    function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function escapeAttr(str) {
+        return escapeHtml(str).replace(/'/g, "\'");
+    }
+</script>
+</body>
+</html>
